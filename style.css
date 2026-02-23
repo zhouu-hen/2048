@@ -1,0 +1,424 @@
+/* ============================================================
+   2048 – Production Stylesheet
+   Mobile-first, safe-area aware, variable grid size
+   ============================================================ */
+
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ─── Variables ──────────────────────────────────────────────── */
+:root {
+  --bg:         #faf8ef;
+  --board-bg:   #bbada0;
+  --cell-bg:    #cdc1b4;
+  --text-dark:  #776e65;
+  --text-light: #f9f6f2;
+  --title-color:#776e65;
+
+  --gap: 12px;
+  --radius: 6px;
+  --grid-size: 4;        /* overridden by JS for each difficulty */
+}
+
+/* ─── Base ───────────────────────────────────────────────────── */
+html {
+  height: 100%;
+  /* Prevent rubber-band / overscroll bounce */
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+  /* Respect iPhone notch / home indicator */
+  padding: max(16px, env(safe-area-inset-top))
+           max(12px, env(safe-area-inset-right))
+           max(24px, env(safe-area-inset-bottom))
+           max(12px, env(safe-area-inset-left));
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Container ─────────────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: 500px;
+}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 68px;
+  font-weight: 800;
+  color: var(--title-color);
+  line-height: 1;
+  letter-spacing: -2px;
+  user-select: none;
+}
+
+.scores-container {
+  display: flex;
+  gap: 8px;
+}
+
+.score-box {
+  background: var(--board-bg);
+  color: var(--text-light);
+  border-radius: var(--radius);
+  padding: 7px 16px;
+  min-width: 76px;
+  text-align: center;
+  /* Smooth score bump */
+  transition: transform 0.1s;
+}
+
+.score-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #eee4da;
+}
+
+.score-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+}
+
+/* ─── Sub-header ────────────────────────────────────────────── */
+.sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-dark);
+  opacity: 0.8;
+  flex: 1 1 auto;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Difficulty bar ─────────────────────────────────────────── */
+.difficulty-bar {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  background: #d3c4b5;
+  color: var(--text-dark);
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+  /* iOS touch target */
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.diff-btn:active {
+  transform: scale(0.95);
+}
+
+.diff-btn.active {
+  background: #8f7a66;
+  color: #fff;
+}
+
+.diff-btn .diff-size {
+  font-size: 10px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn {
+  background: #8f7a66;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+  /* iOS touch target minimum */
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.btn:hover {
+  background: #7b6758;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-secondary {
+  background: #bbada0;
+}
+
+.btn-secondary:hover {
+  background: #a89589;
+}
+
+/* ─── Game Wrapper (relative, for overlays) ─────────────────── */
+.game-wrapper {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ─── Board ─────────────────────────────────────────────────── */
+.game-board {
+  position: relative;
+  background: var(--board-bg);
+  border-radius: 10px;
+  padding: var(--gap);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* Disable browser touch gestures on the board */
+  touch-action: none;
+}
+
+/* ─── Grid background (CSS Grid, size driven by --grid-size) ─── */
+.grid-container {
+  position: absolute;
+  inset: var(--gap);
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size), 1fr);
+  grid-template-rows:    repeat(var(--grid-size), 1fr);
+  gap: var(--gap);
+}
+
+.grid-cell {
+  background: var(--cell-bg);
+  border-radius: var(--radius);
+}
+
+/* ─── Tile Container ─────────────────────────────────────────── */
+.tile-container {
+  position: absolute;
+  inset: var(--gap);
+  pointer-events: none;
+}
+
+/* ─── Tiles ─────────────────────────────────────────────────── */
+.tile {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-weight: 800;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Slide animation */
+  transition: left 0.1s ease, top 0.1s ease;
+  will-change: left, top;
+  line-height: 1;
+}
+
+/* ── Tile Colors ── */
+.tile[data-value="2"]    { background: #eee4da; color: #776e65; }
+.tile[data-value="4"]    { background: #ede0c8; color: #776e65; }
+.tile[data-value="8"]    { background: #f2b179; color: #f9f6f2; }
+.tile[data-value="16"]   { background: #f59563; color: #f9f6f2; }
+.tile[data-value="32"]   { background: #f67c5f; color: #f9f6f2; }
+.tile[data-value="64"]   { background: #f65e3b; color: #f9f6f2; }
+.tile[data-value="128"]  { background: #edcf72; color: #f9f6f2; box-shadow: 0 0 20px 4px rgba(243,215,116,.6); }
+.tile[data-value="256"]  { background: #edcc61; color: #f9f6f2; box-shadow: 0 0 22px 6px rgba(243,215,116,.7); }
+.tile[data-value="512"]  { background: #edc850; color: #f9f6f2; box-shadow: 0 0 24px 8px rgba(243,215,116,.8); }
+.tile[data-value="1024"] { background: #edc53f; color: #f9f6f2; box-shadow: 0 0 28px 10px rgba(243,215,116,.9); }
+.tile[data-value="2048"] { background: #edc22e; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(243,215,116,1); }
+.tile[data-value="4096"] { background: #3c8de0; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(60,141,224,.8); }
+.tile[data-value="8192"] { background: #2b6fcb; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(43,111,203,.8); }
+.tile.tile-super         { background: #1d4e9a; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(29,78,154,.9); }
+
+/* ── Tile Animations ── */
+@keyframes tile-appear {
+  0%   { transform: scale(0);    opacity: 0; }
+  60%  { transform: scale(1.14); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes tile-merge {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.tile-new    { animation: tile-appear 0.2s ease forwards; }
+.tile-merged { animation: tile-merge  0.18s ease forwards; z-index: 20; }
+
+/* ─── Overlays ────────────────────────────────────────────────── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(238, 228, 218, 0.75);
+  border-radius: 10px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: overlay-in 0.28s ease;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+.overlay-win {
+  background: rgba(237, 194, 46, 0.58);
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+.overlay-content {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.overlay-title {
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--text-dark);
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.overlay-subtitle {
+  font-size: 17px;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+}
+
+.overlay-score {
+  font-size: 18px;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.overlay-btn {
+  font-size: 17px;
+  padding: 13px 28px;
+  margin: 5px;
+}
+
+.overlay-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ─── Score flyup ────────────────────────────────────────────── */
+#score-additions { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+.score-addition {
+  position: fixed;
+  font-size: 20px;
+  font-weight: 800;
+  color: #776e65;
+  pointer-events: none;
+  animation: score-fly 0.85s ease forwards;
+}
+
+@keyframes score-fly {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-55px); }
+}
+
+/* ─── Save hint / Instructions ───────────────────────────────── */
+.instructions {
+  margin-top: 18px;
+  text-align: center;
+  line-height: 1.9;
+  font-size: 13px;
+  color: var(--text-dark);
+  opacity: 0.65;
+}
+
+.save-hint {
+  font-size: 12px;
+  color: #8f7a66;
+  opacity: 0.8;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --gap: 10px; }
+
+  .title       { font-size: 52px; }
+  .score-box   { padding: 5px 10px; min-width: 62px; }
+  .score-value { font-size: 18px; }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .overlay-title { font-size: 34px; }
+}
+
+@media (max-width: 360px) {
+  :root { --gap: 8px; }
+  .title { font-size: 44px; }
+}
+
+/* ─── Landscape phones ────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .instructions { display: none; }
+  .header        { margin-bottom: 6px; }
+  .sub-header    { margin-bottom: 6px; }
+  .difficulty-bar { margin-bottom: 8px; }
+}
