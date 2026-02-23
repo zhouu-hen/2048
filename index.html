@@ -30,7 +30,7 @@
 
     <!-- Sub-header -->
     <div class="sub-header">
-      <p class="description" id="description">合并相同数字，达到 <strong id="target-label">2048</strong>！</p>
+      <p class="description">合并相同数字，达到 <strong id="target-label">2048</strong>！</p>
       <div class="buttons">
         <button id="new-game-btn" class="btn" aria-label="新游戏">新游戏</button>
         <button id="undo-btn" class="btn btn-secondary" aria-label="撤销">撤销</button>
@@ -58,17 +58,8 @@
         </div>
       </div>
 
-      <!-- Win Overlay -->
-      <div class="overlay overlay-win" id="win-overlay" role="dialog" aria-modal="true" aria-label="胜利">
-        <div class="overlay-content">
-          <div class="overlay-title">你赢了！</div>
-          <div class="overlay-subtitle">成功合并到 <span id="win-target-label">2048</span>！</div>
-          <div class="overlay-buttons">
-            <button class="btn overlay-btn" id="continue-btn">继续</button>
-            <button class="btn overlay-btn btn-secondary" id="new-game-win-btn">新游戏</button>
-          </div>
-        </div>
-      </div>
+      <!-- Win Toast (small, non-blocking) -->
+      <div class="win-toast" id="win-toast" aria-live="polite"></div>
     </div>
 
     <!-- Instructions -->

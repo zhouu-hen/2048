@@ -313,8 +313,36 @@ body {
   display: flex;
 }
 
-.overlay-win {
-  background: rgba(237, 194, 46, 0.58);
+/* ─── Win Toast (small, non-blocking) ───────────────────────── */
+.win-toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #edc22e;
+  color: #776e65;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 8px 20px;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+  pointer-events: none;
+  z-index: 101;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.win-toast.show {
+  opacity: 1;
+  animation: toast-in-out 2.4s ease forwards;
+}
+
+@keyframes toast-in-out {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
 }
 
 @keyframes overlay-in {

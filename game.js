@@ -57,9 +57,9 @@
   const gridContainer  = document.getElementById('grid-container');
   const diffBar        = document.getElementById('difficulty-bar');
   const targetLabel    = document.getElementById('target-label');
-  const winTargetLabel = document.getElementById('win-target-label');
+  const winTargetLabel = null; // removed
   const gameOverlay    = document.getElementById('game-over-overlay');
-  const winOverlay     = document.getElementById('win-overlay');
+  const winToastEl     = document.getElementById('win-toast');
   const finalScoreEl   = document.getElementById('final-score');
   const saveHintEl     = document.getElementById('save-hint');
   const scoreAdds      = document.getElementById('score-additions');
@@ -149,8 +149,7 @@
     TARGET = d.target;
 
     updateDiffButtons();
-    targetLabel.textContent    = TARGET;
-    winTargetLabel.textContent = TARGET;
+    targetLabel.textContent = TARGET;
 
     // Update CSS --grid-size for the background grid
     document.documentElement.style.setProperty('--grid-size', SIZE);
@@ -188,8 +187,7 @@
     render(/* animate= */ false);
 
     // Re-check state without adding a tile (board is fully loaded)
-    if (won && !keepPlaying) showWin();
-    else if (!canMove())     { gameOver = true; showGameOver(); }
+    if (!canMove()) { gameOver = true; showGameOver(); }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -330,11 +328,12 @@
      STATE CHECKS
   ═══════════════════════════════════════════════════════════ */
   function checkState() {
-    if (!keepPlaying && !won) {
+    if (!won) {
       for (const row of grid)
         for (const cell of row)
           if (cell && cell.value === TARGET) {
             won = true;
+            keepPlaying = true;   // auto-continue, no blocking overlay
             setTimeout(showWin, 350);
             return;
           }
@@ -515,14 +514,19 @@
     gameOverlay.classList.add('active');
   }
 
+  /* Small toast – game keeps running */
+  let winToastTimer = null;
   function showWin() {
-    winTargetLabel.textContent = TARGET;
-    winOverlay.classList.add('active');
+    winToastEl.textContent = '达到 ' + TARGET + ' 了！继续加油！';
+    winToastEl.classList.remove('show');
+    void winToastEl.offsetWidth;          // reflow to restart animation
+    winToastEl.classList.add('show');
+    clearTimeout(winToastTimer);
+    winToastTimer = setTimeout(() => winToastEl.classList.remove('show'), 2500);
   }
 
   function hideOverlays() {
     gameOverlay.classList.remove('active');
-    winOverlay.classList.remove('active');
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -607,15 +611,9 @@
   }, { passive: true });
 
   /* Buttons */
-  document.getElementById('new-game-btn')    .addEventListener('click', newGame);
-  document.getElementById('undo-btn')        .addEventListener('click', undo);
-  document.getElementById('restart-btn')     .addEventListener('click', newGame);
-  document.getElementById('continue-btn')    .addEventListener('click', () => {
-    keepPlaying = true;
-    hideOverlays();
-    saveState();
-  });
-  document.getElementById('new-game-win-btn').addEventListener('click', newGame);
+  document.getElementById('new-game-btn').addEventListener('click', newGame);
+  document.getElementById('undo-btn')    .addEventListener('click', undo);
+  document.getElementById('restart-btn') .addEventListener('click', newGame);
 
   /* Resize – recompute tile pixel positions */
   let resizeTimer;
@@ -646,9 +644,8 @@
     // Set CSS --grid-size
     document.documentElement.style.setProperty('--grid-size', SIZE);
 
-    // Update target labels
-    targetLabel.textContent    = TARGET;
-    winTargetLabel.textContent = TARGET;
+    // Update target label
+    targetLabel.textContent = TARGET;
 
     // Build background grid cells
     buildGridBackground();
@@ -664,10 +661,10 @@
     updateScores();
     render(/* animate= */ false);
 
-    // Show appropriate overlay after restore
-    if (restored) {
-      if (won && !keepPlaying) showWin();
-      else if (!canMove())    { gameOver = true; showGameOver(); }
+    // Show game-over overlay if board is stuck on restore
+    if (restored && !canMove()) {
+      gameOver = true;
+      showGameOver();
     }
   }
 
