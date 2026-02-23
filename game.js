@@ -229,11 +229,33 @@
     return { value, r, c, id: ++tileId, isNew: true, merged: false };
   }
 
+  function getMaxTileValue(g) {
+    let max = 0;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const cell = g[r][c];
+        if (cell && cell.value > max) max = cell.value;
+      }
+    }
+    return max;
+  }
+
+  function randomSpawnValue(g) {
+    const maxTile = getMaxTileValue(g);
+    if (SIZE >= 5 && maxTile > 4055) {
+      const rand = Math.random();
+      if (rand < 0.6) return 2;
+      if (rand < 0.9) return 4;
+      return 8;
+    }
+    return Math.random() < 0.9 ? 2 : 4;
+  }
+
   function addRandomTile(g) {
     const empties = emptyPositions(g);
     if (!empties.length) return;
     const { r, c } = randomFrom(empties);
-    g[r][c] = makeTile(Math.random() < 0.9 ? 2 : 4, r, c);
+    g[r][c] = makeTile(randomSpawnValue(g), r, c);
   }
 
   /* ═══════════════════════════════════════════════════════════

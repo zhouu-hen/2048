@@ -265,20 +265,20 @@ body {
 }
 
 /* ── Tile Colors ── */
-.tile[data-value="2"]    { background: #eee4da; color: #776e65; }
-.tile[data-value="4"]    { background: #ede0c8; color: #776e65; }
-.tile[data-value="8"]    { background: #f2b179; color: #f9f6f2; }
-.tile[data-value="16"]   { background: #f59563; color: #f9f6f2; }
-.tile[data-value="32"]   { background: #f67c5f; color: #f9f6f2; }
-.tile[data-value="64"]   { background: #f65e3b; color: #f9f6f2; }
-.tile[data-value="128"]  { background: #edcf72; color: #f9f6f2; box-shadow: 0 0 20px 4px rgba(243,215,116,.6); }
-.tile[data-value="256"]  { background: #edcc61; color: #f9f6f2; box-shadow: 0 0 22px 6px rgba(243,215,116,.7); }
-.tile[data-value="512"]  { background: #edc850; color: #f9f6f2; box-shadow: 0 0 24px 8px rgba(243,215,116,.8); }
-.tile[data-value="1024"] { background: #edc53f; color: #f9f6f2; box-shadow: 0 0 28px 10px rgba(243,215,116,.9); }
-.tile[data-value="2048"] { background: #edc22e; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(243,215,116,1); }
-.tile[data-value="4096"] { background: #3c8de0; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(60,141,224,.8); }
-.tile[data-value="8192"] { background: #2b6fcb; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(43,111,203,.8); }
-.tile.tile-super         { background: #1d4e9a; color: #f9f6f2; box-shadow: 0 0 32px 14px rgba(29,78,154,.9); }
+.tile[data-value="2"]    { background: #fdf2f8; color: #6b5e66; }
+.tile[data-value="4"]    { background: #fce7f3; color: #6b5e66; }
+.tile[data-value="8"]    { background: #fee2e2; color: #6b5e66; }
+.tile[data-value="16"]   { background: #ffedd5; color: #6b5e66; }
+.tile[data-value="32"]   { background: #fef3c7; color: #6b5e66; }
+.tile[data-value="64"]   { background: #fef9c3; color: #6b5e66; }
+.tile[data-value="128"]  { background: #dcfce7; color: #4f6f5d; }
+.tile[data-value="256"]  { background: #bbf7d0; color: #3f6353; }
+.tile[data-value="512"]  { background: #a7f3d0; color: #375c50; }
+.tile[data-value="1024"] { background: #bfdbfe; color: #3d5472; }
+.tile[data-value="2048"] { background: #c7d2fe; color: #3c486f; }
+.tile[data-value="4096"] { background: #ddd6fe; color: #524b78; }
+.tile[data-value="8192"] { background: #f5d0fe; color: #6b4e73; }
+.tile.tile-super         { background: #e9d5ff; color: #5d4b72; }
 
 /* ── Tile Animations ── */
 @keyframes tile-appear {
